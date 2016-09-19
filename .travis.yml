@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: a7Y6C5L5rdwrYR7WPZl73J+wUC4gDEkOss2IG/3Xk9yAWgOTiIQTfbQ658Wo72DeMZ7ml+4D1PewEVVSeMw6NmerHjfLFw8DfaNsr7tpTpilAWXsP4KrLa8qSH7Ck/DY4MGJxCN447G1CD+Mr2jygfsGrXqK5YBgP8qqf/vm6jt7zBNxuEqHXfqzuNRwnPScDOlJHnvcq3iWv0308Kl7yAQ7taKgjh//A8ML2Ony9DjcH8XbbO48kUKt1d6rDIFWebaoT3D2Vg+r477hkZ65XpuxzsxM62ELuLDvb9mk48hUeMC0Ge22gDDFODYSVARliNRz2sLt2AC3xObdiF5GlJAojdsPF0yRvExfST1kdDFBM52SWYQLzmwAf4DrG9HT+Yz3Z7rPzATvq09SwUDy/m4hnYDHACv5ymrB1Wde0ZOMt3n3hMEe8faTLOFu4Ua3ioMNmzzSdcpSn72XrUKw/m4mOJAh6Fauy3a0Err2iadZSJf0HCgxSjhB4LELPf/Q0gcBtscScaP0YvsSsli3fY5u1LLBxz8VzBldFW48qtlJYDfmVlii+K4Z/lRMU+5gzbut1zqUFgTFmrrhimjTwmU/P+QApVD0WqyvbtQ336TktzK2rLs1EVcNkXi0IHVYL7WCRViDDeCnZelkxhPr0/ich8x8YQhZtwpUZYmtShM=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Empress-Josephine--An-Historical-Sketch-of-the-Days-of-Napoleon_4226
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
